@@ -1,5 +1,35 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+
+// Original dimensions
+const originalWidth = 800;
+const originalHeight = 600;
+
+// Resize the canvas dynamically
+function resizeCanvas() {
+    const aspectRatio = originalWidth / originalHeight;
+
+    // Check if the screen width is small enough to consider it a mobile device
+    if (window.innerWidth < 900) {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const scaleFactor = Math.min(screenWidth / originalWidth, screenHeight / originalHeight);
+
+        canvas.width = originalWidth * scaleFactor;
+        canvas.height = originalHeight * scaleFactor;
+        ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0); // Scale the entire canvas
+    } else {
+        // For larger screens like laptops, use the original size
+        canvas.width = originalWidth;
+        canvas.height = originalHeight;
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset scaling
+    }
+}
+
+// Resize canvas on window resize
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); // Initial resize
+
 let frames = 0;
 let pipes = [];
 let gameInterval;
@@ -124,8 +154,6 @@ function displayGameOver() {
     if (!gameOver) {
         return;
     }
-    ctx.fillStyle = 'red';
-    ctx.font = '48px Arial';
     document.getElementById('restart').style.display = 'block';
 }
 
@@ -134,15 +162,14 @@ function restartGame() {
     document.getElementById('difficulty').style.display = 'block';
 }
 
-// Handle keypress for jump
+// Jump functionality for both keyboard and touch
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && !gameOver) {
         bird.velocity = bird.lift;
     }
 });
 
-// Handle touch for jump
-canvas.addEventListener('touchstart', (e) => {
+canvas.addEventListener('click', () => {
     if (!gameOver) {
         bird.velocity = bird.lift;
     }
