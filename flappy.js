@@ -25,7 +25,7 @@ const bird = {
     width: 34,
     height: 24,
     gravity: 0.3,
-    lift: -5,
+    lift: -6,
     velocity: 0,
     img: new Image(),
 };
@@ -47,13 +47,13 @@ function startGame(difficulty) {
     // Set difficulty levels
     if (difficulty === 'Easy') {
         gap = canvas.height / 2.5;
-        pipeSpeed = 2;
+        pipeSpeed = 2; // Slightly faster pipes
     } else if (difficulty === 'Hard') {
         gap = canvas.height / 3;
-        pipeSpeed = 3;
+        pipeSpeed = 2.5; // Moderate speed
     } else if (difficulty === 'Advanced') {
         gap = canvas.height / 4;
-        pipeSpeed = 4;
+        pipeSpeed = 3; // Fast pipes for advanced level
     }
     countdown();
 }
@@ -93,7 +93,7 @@ function drawBird() {
 }
 
 function drawPipes() {
-    if (frames % 100 === 0) {
+    if (frames % 90 === 0) { // Slightly faster appearance of pipes
         const pipeHeight = Math.floor(Math.random() * (canvas.height - gap));
         pipes.push({ x: canvas.width, y: pipeHeight });
     }
