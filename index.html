@@ -7,6 +7,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -16,12 +17,10 @@
         canvas {
             background-color: #e0f7fa;
             border: 2px solid #00897b;
+            display: block;
         }
         .difficulty, .restart {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             text-align: center;
         }
         .difficulty button, .restart button {
@@ -46,7 +45,7 @@
         <h1>Game Over</h1>
         <button onclick="restartGame()">Restart</button>
     </div>
-    <canvas id="canvas" width="600" height="600"></canvas>
+    <canvas id="canvas"></canvas>
     <script src="flappy.js"></script>
 </body>
 </html>
