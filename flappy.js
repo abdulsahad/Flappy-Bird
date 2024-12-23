@@ -1,55 +1,33 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-// Original dimensions
-const originalWidth = 800;
-const originalHeight = 600;
-
-// Resize the canvas dynamically
+// Dynamic canvas resizing for responsiveness
 function resizeCanvas() {
-    const aspectRatio = originalWidth / originalHeight;
+    const aspectRatio = 4 / 3; // Original aspect ratio: 800x600
+    const screenWidth = Math.min(window.innerWidth * 0.95, 800); // Cap max width for laptops
+    const screenHeight = screenWidth / aspectRatio;
 
-    // Check if the screen width is small enough to consider it a mobile device
-    if (window.innerWidth < 600) { // For smaller mobile screens
-        const screenWidth = Math.min(window.innerWidth, 500); // Set max width to 500px
-        const screenHeight = screenWidth / aspectRatio;
-
-        canvas.width = screenWidth;
-        canvas.height = screenHeight;
-        ctx.setTransform(screenWidth / originalWidth, 0, 0, screenHeight / originalHeight, 0, 0); // Scale the entire canvas
-    } else if (window.innerWidth < 900) { // For larger mobile screens
-        const screenWidth = window.innerWidth * 0.9; // Use 90% of screen width
-        const screenHeight = screenWidth / aspectRatio;
-
-        canvas.width = screenWidth;
-        canvas.height = screenHeight;
-        ctx.setTransform(screenWidth / originalWidth, 0, 0, screenHeight / originalHeight, 0, 0); // Scale the entire canvas
-    } else {
-        // For laptops or desktops, use the original size
-        canvas.width = originalWidth;
-        canvas.height = originalHeight;
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset scaling
-    }
+    canvas.width = screenWidth;
+    canvas.height = screenHeight;
 }
-
-// Resize canvas on window resize
+resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); // Initial resize
 
 let frames = 0;
 let pipes = [];
 let gameInterval;
 let gameOver = false;
 let score = 0;
+
 const bird = {
     x: 50,
     y: 150,
-    width: 68,
-    height: 48,
+    width: 34,
+    height: 24,
     gravity: 0.3,
-    lift: -4,
+    lift: -5,
     velocity: 0,
-    img: new Image()
+    img: new Image(),
 };
 bird.img.src = 'bird.png';
 
@@ -59,20 +37,22 @@ let pipeSpeed;
 function startGame(difficulty) {
     document.getElementById('difficulty').style.display = 'none';
     document.getElementById('restart').style.display = 'none';
-    bird.y = 150;
+    bird.y = canvas.height / 2;
     bird.velocity = 0;
     pipes = [];
     frames = 0;
     score = 0;
     gameOver = false;
+
+    // Set difficulty levels
     if (difficulty === 'Easy') {
-        gap = 260;
+        gap = canvas.height / 2.5;
         pipeSpeed = 2;
     } else if (difficulty === 'Hard') {
-        gap = 195;
+        gap = canvas.height / 3;
         pipeSpeed = 3;
     } else if (difficulty === 'Advanced') {
-        gap = 130;
+        gap = canvas.height / 4;
         pipeSpeed = 4;
     }
     countdown();
@@ -83,7 +63,7 @@ function countdown() {
     const countdownInterval = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#000';
-        ctx.font = '48px Arial';
+        ctx.font = `${canvas.height / 10}px Arial`;
         ctx.fillText(count, canvas.width / 2 - 20, canvas.height / 2);
         count--;
         if (count < 0) {
@@ -118,7 +98,7 @@ function drawPipes() {
         pipes.push({ x: canvas.width, y: pipeHeight });
     }
 
-    pipes.forEach(pipe => {
+    pipes.forEach((pipe, index) => {
         pipe.x -= pipeSpeed;
 
         ctx.fillStyle = 'green';
@@ -127,11 +107,13 @@ function drawPipes() {
         gradient.addColorStop(1, 'lightgreen');
         ctx.fillStyle = gradient;
 
+        // Top pipe
         ctx.fillRect(pipe.x, 0, 50, pipe.y);
+        // Bottom pipe
         ctx.fillRect(pipe.x, pipe.y + gap, 50, canvas.height - pipe.y - gap);
 
         if (pipe.x + 50 < 0) {
-            pipes.shift();
+            pipes.splice(index, 1);
             score++;
         }
     });
@@ -143,8 +125,11 @@ function checkCollision() {
     }
 
     pipes.forEach(pipe => {
-        if (bird.x < pipe.x + 50 && bird.x + bird.width > pipe.x &&
-            (bird.y < pipe.y || bird.y + bird.height > pipe.y + gap)) {
+        if (
+            bird.x < pipe.x + 50 &&
+            bird.x + bird.width > pipe.x &&
+            (bird.y < pipe.y || bird.y + bird.height > pipe.y + gap)
+        ) {
             gameOver = true;
         }
     });
@@ -152,14 +137,11 @@ function checkCollision() {
 
 function drawScore() {
     ctx.fillStyle = '#000';
-    ctx.font = '24px Arial';
-    ctx.fillText('Score: ' + score, 10, 30);
+    ctx.font = `${canvas.height / 20}px Arial`;
+    ctx.fillText(`Score: ${score}`, 10, canvas.height / 20);
 }
 
 function displayGameOver() {
-    if (!gameOver) {
-        return;
-    }
     document.getElementById('restart').style.display = 'block';
 }
 
@@ -168,13 +150,12 @@ function restartGame() {
     document.getElementById('difficulty').style.display = 'block';
 }
 
-// Jump functionality for both keyboard and touch
+// Controls
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && !gameOver) {
         bird.velocity = bird.lift;
     }
 });
-
 canvas.addEventListener('click', () => {
     if (!gameOver) {
         bird.velocity = bird.lift;
