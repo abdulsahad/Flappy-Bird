@@ -10,16 +10,22 @@ function resizeCanvas() {
     const aspectRatio = originalWidth / originalHeight;
 
     // Check if the screen width is small enough to consider it a mobile device
-    if (window.innerWidth < 900) {
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const scaleFactor = Math.min(screenWidth / originalWidth, screenHeight / originalHeight);
+    if (window.innerWidth < 600) { // For smaller mobile screens
+        const screenWidth = Math.min(window.innerWidth, 500); // Set max width to 500px
+        const screenHeight = screenWidth / aspectRatio;
 
-        canvas.width = originalWidth * scaleFactor;
-        canvas.height = originalHeight * scaleFactor;
-        ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0); // Scale the entire canvas
+        canvas.width = screenWidth;
+        canvas.height = screenHeight;
+        ctx.setTransform(screenWidth / originalWidth, 0, 0, screenHeight / originalHeight, 0, 0); // Scale the entire canvas
+    } else if (window.innerWidth < 900) { // For larger mobile screens
+        const screenWidth = window.innerWidth * 0.9; // Use 90% of screen width
+        const screenHeight = screenWidth / aspectRatio;
+
+        canvas.width = screenWidth;
+        canvas.height = screenHeight;
+        ctx.setTransform(screenWidth / originalWidth, 0, 0, screenHeight / originalHeight, 0, 0); // Scale the entire canvas
     } else {
-        // For larger screens like laptops, use the original size
+        // For laptops or desktops, use the original size
         canvas.width = originalWidth;
         canvas.height = originalHeight;
         ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset scaling
